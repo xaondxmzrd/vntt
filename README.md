@@ -1,0 +1,1 @@
+vntt is a simple visual novel translation tool
