@@ -17,12 +17,13 @@ class RPGMV:
             with open(path, 'r', encoding="utf-8") as f:
                 head = json.load(f)
 
-                for event in head["events"][1:]:
-                    for page in event["pages"]:
-                        for code in page["list"]:
-                            if "code" not in code or "parameters" not in code:
-                                return False
-                return True
+                return all(
+                    "code" in code and "parameters" in code
+                    
+                    for event in head["events"][1:]
+                    for page in event["pages"]
+                    for code in page["list"]
+                )
 
         except Exception:
             return False
