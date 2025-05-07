@@ -2,6 +2,7 @@ import os
 import sys
 import argparse
 import gui
+import extract
 
 __version__ = "0.0.1"
 __program__ = "vntt"
@@ -41,7 +42,8 @@ class startup_subparsers:
 
     def add_extract_parser(self):
         def process_args(args):
-            print(args.file)
+            path = args.file
+            extract.extract(path)
 
         parser = self.subparsers.add_parser("extract", help="extract game")
         parser.add_argument("file", help="game file or directory", type=is_file_or_dir)
