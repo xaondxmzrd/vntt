@@ -32,4 +32,6 @@ class RPGMV:
         return "package.json" in os.listdir(path)
 
     def select_files(self, dir):
-        return [path for path in Path(dir).glob("*.json") if self.can_handle_file(path)]
+        data_dir = Path(dir) / "data"
+
+        return [path for path in data_dir.glob("*.json") if self.can_handle_file(path)]
