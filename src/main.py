@@ -67,7 +67,7 @@ class startup_subparsers:
 def main():
     parser = startup_parser()
 
-    args = parser.parse_args()
+    args = parser.parse_args(["extract", ""])
 
     process_args(args)
 
