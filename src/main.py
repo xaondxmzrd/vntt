@@ -1,9 +1,10 @@
 import os
 import sys
 import argparse
+import json
 import gui
-import extract
 import config
+from core import extract
 
 
 def is_file_or_dir(path):
@@ -31,17 +32,18 @@ def process_args(args):
 
 class startup_subparsers:
     def __init__(self, parser):
-        self.subparsers = parser.add_subparsers(
-            title="subcommands", description="choose one of the commands"
-        )
+        self.subparsers = parser.add_subparsers(title="subcommands")
         self.add_extract_parser()
         self.add_embed_parser()
         self.add_gui_parser()
 
     def add_extract_parser(self):
         def process_args(args):
-            path = args.file
-            extract.extract(path)
+            if arr := extract(args.file):
+                table = {key: "" for key in arr}
+                print(json.dumps(table, ensure_ascii=False, indent=4))
+            else:
+                print("No supported backend found")
 
         parser = self.subparsers.add_parser("extract", help="extract game")
         parser.add_argument("file", help="game file or directory", type=is_file_or_dir)
