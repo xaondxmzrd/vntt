@@ -1,1 +1,1 @@
-vntt is a simple visual novel translation tool
+这是一个 python 学习项目，暂时没有实现有价值的功能。
