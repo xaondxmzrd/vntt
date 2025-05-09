@@ -1,7 +1,8 @@
 import os
 import json
-from pathlib import Path
 import enum
+import itertools
+from pathlib import Path
 
 
 @enum.unique
@@ -29,47 +30,46 @@ def extract_opcode(opcode):
 
 
 def extract_list(lis):
-    result = []
     for opcode in lis:
         if r := extract_opcode(opcode):
             if isinstance(r, list):
-                result += r
+                yield from r
             else:
-                result.append(r)
-    return result
+                yield r
 
 
 def for_each_list(head, func):
-    return [
-        item
-        for event in head["events"][1:]
-        for page in event["pages"]
-        for item in func(page["list"])
-    ]
+    for event in head["events"][1:]:
+        for page in event["pages"]:
+            yield func(page["list"])
+
+
+def read_file(path):
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 
 def extract_file(path):
-    with open(path, "r", encoding="utf-8") as f:
-        head = json.load(f)
-        return for_each_list(head, extract_list)
+    data = read_file(path)
+    return itertools.chain.from_iterable(for_each_list(data, extract_list))
 
 
 def select_files(dir):
     data_dir = Path(dir) / "data"
-    return [path for path in data_dir.glob("*.json") if can_handle_file(path)]
+    for path in data_dir.glob("*.json"):
+        if can_handle_file(path):
+            yield path
 
 
 def extract_dir(path):
-    result = []
     for file in select_files(path):
-        result += extract_file(file)
-
-    return result
+        yield from extract_file(file)
 
 
 def can_handle_file(path):
     try:
-        extract_file(path)
+        for item in extract_file(path):
+            pass
         return True
     except Exception:
         return False
