@@ -39,12 +39,12 @@ def extract_list(lis):
     return result
 
 
-def for_each_list(head, pred):
+def for_each_list(head, func):
     return [
         item
         for event in head["events"][1:]
         for page in event["pages"]
-        for item in pred(page["list"])
+        for item in func(page["list"])
     ]
 
 

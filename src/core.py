@@ -1,25 +1,48 @@
 import os
 import impl.rpgmv
+from functools import wraps
 
-backend = [impl.rpgmv]
+backend_list = [impl.rpgmv]
+
+
+def call_backend_by_path(path, backend, action_name, *args, **kwargs):
+    suffix = "file" if os.path.isfile(path) else "dir" if os.path.isdir(path) else None
+
+    if suffix is None:
+        raise ValueError(f"Invalid path: {path}")
+
+    method = getattr(backend, f"{action_name}_{suffix}", None)
+    if not callable(method):
+        raise ValueError(f"{backend} does not support {action_name}_{suffix}")
+
+    return method(path, *args, **kwargs)
 
 
 def guess_game_engine(path):
-    for item in backend:
-        if os.path.isfile(path) and item.can_handle_file(path):
-            return item
+    for backend in backend_list:
+        if call_backend_by_path(path, backend, "can_handle"):
+            return backend
+    return None
 
-        elif os.path.isdir(path) and item.can_handle_dir(path):
-            return item
 
+def backend_action(func):
+    action_name = func.__name__
+
+    @wraps(func)
+    def wrapper(path, *args, **kwargs):
+        if backend := guess_game_engine(path):
+            return call_backend_by_path(path, backend, action_name, *args, **kwargs)
         else:
-            return False
+            raise ValueError(f"Failed to determine backend: {path}")
+
+    return wrapper
 
 
-def extract(path, ftype=None):
-    if backend := guess_game_engine(path):
-        if os.path.isfile(path):
-            return backend.extract_file(path)
+@backend_action
+def extract(path):
+    pass
 
-        elif os.path.isdir(path):
-            return backend.extract_dir(path)
+
+@backend_action
+def replace(path):
+    pass
