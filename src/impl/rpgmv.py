@@ -2,7 +2,6 @@ import os
 import json
 import enum
 import itertools
-from pathlib import Path
 
 
 @enum.unique
@@ -55,10 +54,12 @@ def extract_file(path):
 
 
 def select_files(dir):
-    data_dir = Path(dir) / "data"
-    for path in data_dir.glob("*.json"):
-        if can_handle_file(path):
-            yield path
+    data_dir = os.path.join(dir, "data")
+    for filename in os.listdir(data_dir):
+        if filename.endswith(".json"):
+            path = os.path.join(data_dir, filename)
+            if can_handle_file(path):
+                yield path
 
 
 def extract_dir(path):
