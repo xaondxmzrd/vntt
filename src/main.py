@@ -3,9 +3,7 @@ import sys
 import argparse
 import gui
 import extract
-
-__version__ = "0.0.1"
-__program__ = "vntt"
+import config
 
 
 def is_file_or_dir(path):
@@ -25,7 +23,7 @@ def startup_parser():
 
 def process_args(args):
     if args.version:
-        print(__program__, "version", __version__)
+        print(config.__program__, "version", config.__version__)
 
     if hasattr(args, "func"):
         args.func(args)
