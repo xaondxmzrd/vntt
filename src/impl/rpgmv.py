@@ -3,35 +3,38 @@ import json
 from pathlib import Path
 
 
-class RPGMV:
-    def extract_file(self, path):
+def extract_file(path):
+    with open(path, "r", encoding="utf-8") as f:
+        content = f.read()
+        print(path)
+
+
+def extract_dir(path):
+    for file in select_files(path):
+        extract_file(file)
+
+
+def can_handle_file(path):
+    try:
         with open(path, "r", encoding="utf-8") as f:
-            content = f.read()
-            print(path)
+            head = json.load(f)
 
-    def extract_dir(self, path):
-        for file in self.select_files(path):
-            self.extract_file(file)
+            return all(
+                "code" in code and "parameters" in code
+                for event in head["events"][1:]
+                for page in event["pages"]
+                for code in page["list"]
+            )
 
-    def can_handle_file(self, path):
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                head = json.load(f)
+    except Exception:
+        return False
 
-                return all(
-                    "code" in code and "parameters" in code
-                    for event in head["events"][1:]
-                    for page in event["pages"]
-                    for code in page["list"]
-                )
 
-        except Exception:
-            return False
+def can_handle_dir(path):
+    return "package.json" in os.listdir(path)
 
-    def can_handle_dir(self, path):
-        return "package.json" in os.listdir(path)
 
-    def select_files(self, dir):
-        data_dir = Path(dir) / "data"
+def select_files(dir):
+    data_dir = Path(dir) / "data"
 
-        return [path for path in data_dir.glob("*.json") if self.can_handle_file(path)]
+    return [path for path in data_dir.glob("*.json") if can_handle_file(path)]

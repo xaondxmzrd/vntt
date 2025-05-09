@@ -1,11 +1,11 @@
 import os
-from impl.rpgmv import RPGMV
+import impl.rpgmv
 
-impl = [RPGMV()]
+backend = [impl.rpgmv]
 
 
 def guess_game_engine(path):
-    for item in impl:
+    for item in backend:
         if os.path.isfile(path) and item.can_handle_file(path):
             return item
 
